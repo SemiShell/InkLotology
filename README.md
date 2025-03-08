@@ -15,7 +15,7 @@
 ## 🚀 快速开始
 
 ### 在线体验
-访问 [Demo页面](#) 立即体验（待部署）
+访问 [Demo页面](https://semishell.github.io/InkLotology/) 立即体验
 
 ### 本地使用
 1. 克隆或下载此仓库
