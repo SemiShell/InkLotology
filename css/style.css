@@ -1,0 +1,681 @@
+/* 全局变量 */
+:root {
+    /* 主色系 */
+    --ink-black: #2D2D2D;
+    --paper-white: #F5F0E6;
+    --cinnabar-red: #C3272B;
+    --stone-blue: #3B5B92;
+    --seal-red: #B02E25;
+    --seal-gray: #707070; /* 新增灰色 */
+    
+    /* 透明度变量 */
+    --ink-opacity-light: 0.2;
+    --ink-opacity-medium: 0.6;
+    --ink-opacity-high: 0.9;
+    
+    /* 尺寸变量 */
+    --touch-min-size: 60px;
+}
+
+/* 导入毛笔字体 */
+@font-face {
+    font-family: 'BrushFont';
+    src: url('../assets/fonts/ZiHun87Hao-GanKunShouShu-2.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* 导入印章字体 */
+@font-face {
+    font-family: 'SealFont';
+    src: url('../assets/fonts/chongxi_seal.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* 基础样式重置 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    touch-action: manipulation;
+    font-family: 'Noto Sans SC', sans-serif;
+}
+
+body {
+    background-color: var(--paper-white);
+    color: var(--ink-black);
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 毛笔字体类 */
+.brush-font {
+    font-family: 'BrushFont', 'Noto Sans SC', sans-serif;
+    font-weight: normal;
+}
+
+/* 开屏动画样式 */
+.preload-mask {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000000; /* 改为黑色背景 */
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.preload-mask.fade-out {
+    animation: fadeOutPreload 1.5s ease-in-out forwards;
+}
+
+@keyframes fadeOutPreload {
+    0% {
+        opacity: 1;
+        background-color: #000000;
+    }
+    50% {
+        opacity: 1;
+        background-color: #FFFFFF;
+    }
+    100% {
+        opacity: 0;
+        background-color: #FFFFFF;
+    }
+}
+
+.preload-ink-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 移除背景图案，保持纯黑背景 */
+}
+
+.poem-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 40px;
+    position: relative;
+    z-index: 10;
+}
+
+.poem-line {
+    font-size: 3rem;
+    color: #FFFFFF; /* 改为白色文字 */
+    opacity: 0;
+    position: relative;
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.poem-line.animate {
+    animation: poemFadeIn 2s ease-out forwards;
+}
+
+@keyframes poemFadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.dust-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.dust-particle {
+    position: absolute;
+    background-color: rgba(45, 45, 45, 0.2);
+    border-radius: 50%;
+    animation: floatDust 15s linear infinite;
+}
+
+@keyframes floatDust {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+    25% {
+        transform: translate(100px, 50px) rotate(90deg);
+    }
+    50% {
+        transform: translate(50px, 100px) rotate(180deg);
+    }
+    75% {
+        transform: translate(-50px, 50px) rotate(270deg);
+    }
+    100% {
+        transform: translate(0, 0) rotate(360deg);
+    }
+}
+
+/* 容器样式 */
+.container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+/* 水墨背景 */
+.ink-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#inkCanvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* 主要内容区 */
+.content {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 30px;
+}
+
+/* 标题区域 */
+header {
+    text-align: center;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 50;
+}
+
+header h1 {
+    font-size: 4rem;
+    color: var(--ink-black);
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    writing-mode: vertical-rl;
+    display: inline-block;
+    letter-spacing: 0.2em;
+}
+
+/* 主区域 */
+main {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* 结果显示区 */
+.result-container {
+    width: 100%;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-bottom: 50px;
+}
+
+.name-display {
+    font-size: 5rem;
+    color: var(--ink-black);
+    text-align: center;
+    position: relative;
+    z-index: 5;
+}
+
+.name-display.horizontal {
+    writing-mode: horizontal-tb;
+}
+
+.name-display.vertical {
+    writing-mode: vertical-rl;
+}
+
+.name-display .single-char {
+    display: inline-block;
+    transform-origin: center;
+}
+
+.final-name {
+    display: flex;
+    gap: 5px;
+}
+
+.final-name span {
+    display: inline-block;
+}
+
+/* 墨水溅开效果 */
+.ink-splash {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 3;
+    pointer-events: none;
+}
+
+/* 布局切换按钮 */
+.mode-switch {
+    margin-bottom: 30px;
+}
+
+.toggle-btn {
+    min-width: var(--touch-min-size);
+    min-height: var(--touch-min-size);
+    background-color: transparent;
+    border: 1px solid var(--ink-black);
+    border-radius: 50%;
+    color: var(--ink-black);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 10px;
+}
+
+.toggle-btn:hover {
+    background-color: rgba(45, 45, 45, 0.1);
+}
+
+/* 底部区域 - 修改为支持左右两侧的控件 */
+footer {
+    width: 100%;
+    padding: 20px;
+    position: relative;
+    z-index: 10;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.left-controls {
+    display: flex;
+    align-items: center;
+}
+
+.right-controls {
+    display: flex;
+    align-items: center;
+}
+
+/* 印章按钮样式 - 修改为长方形篆刻风格 */
+.seal-btn {
+    width: 90px;
+    height: 90px;
+    border: none;
+    font-size: 3.5rem;
+    color: white;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    overflow: hidden;
+    font-family: 'SealFont', STSong, SimSun, 'AR PL UMing CN', serif;
+    
+    /* 篆刻印章效果 */
+    background-color: var(--seal-red);
+    border-radius: 12px; /* 调整为更圆的形状 */
+    transform: rotate(0deg); /* 移除旋转，保持正面 */
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.3);
+    
+    /* 印泥效果 */
+    background-image: 
+        radial-gradient(
+            circle at 30% 30%,
+            rgba(255, 255, 255, 0.3) 0%,
+            transparent 50%
+        ),
+        radial-gradient(
+            circle at 70% 70%,
+            rgba(0, 0, 0, 0.2) 0%,
+            transparent 50%
+        ),
+        repeating-radial-gradient(
+            circle at center,
+            transparent 0px,
+            transparent 2px,
+            rgba(0, 0, 0, 0.05) 3px,
+            transparent 4px
+        );
+    
+    /* 印章不均匀边缘 */
+    clip-path: polygon(
+        2% 2%, 
+        98% 2%, 
+        98% 98%, 
+        2% 98%
+    );
+}
+
+.seal-btn::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 7px;
+    pointer-events: none;
+}
+
+.seal-btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        repeating-linear-gradient(
+            45deg,
+            rgba(255, 255, 255, 0.1),
+            rgba(255, 255, 255, 0.1) 2px,
+            transparent 2px,
+            transparent 4px
+        ),
+        repeating-linear-gradient(
+            -45deg,
+            rgba(0, 0, 0, 0.05),
+            rgba(0, 0, 0, 0.05) 1px,
+            transparent 1px,
+            transparent 3px
+        );
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+/* 印章按下效果 */
+.seal-btn:active {
+    transform: translateY(2px) scale(0.98); /* 轻微下移并缩小 */
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    background-color: #8a231c; /* 按下时颜色变深 */
+    filter: brightness(0.95);
+}
+
+/* 印章选择中状态 */
+.start-seal {
+    background-color: var(--seal-red);
+    font-weight: normal;
+    letter-spacing: 2px;
+    padding-left: 2px; /* 补偿letter-spacing对单个字的影响 */
+    font-family: 'SealFont', STSong, SimSun, 'AR PL UMing CN', serif;
+}
+
+.start-seal.selecting {
+    background-color: var(--seal-gray); /* 改为灰色 */
+    transform: scale(0.95); /* 移除旋转，只保留缩小效果 */
+}
+
+/* 印章按钮悬停效果 */
+.seal-btn:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
+}
+
+/* 印章图标 */
+.start-seal .icon {
+    font-size: 1.5rem;
+}
+
+/* 按钮禁用状态 */
+.seal-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* 印章按钮内容的阴影效果，增强凹印感 */
+.seal-btn span {
+    position: relative;
+    display: inline-block;
+    font-family: 'SealFont', STSong, SimSun, 'AR PL UMing CN', serif;
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.3), 
+                -1px -1px 0 rgba(255, 255, 255, 0.1);
+}
+
+/* 设置按钮样式 */
+.settings-btn {
+    width: var(--touch-min-size);
+    height: var(--touch-min-size);
+    border-radius: 50%;
+    background-color: transparent;
+    border: 1px solid var(--ink-black);
+    color: var(--ink-black);
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.settings-btn:hover {
+    background-color: rgba(45, 45, 45, 0.1);
+}
+
+/* 设置面板 */
+.settings-panel {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background-color: var(--paper-white);
+    z-index: 100;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    padding: 30px;
+}
+
+.settings-panel.visible {
+    transform: translateX(0);
+}
+
+.settings-panel.hidden {
+    transform: translateX(100%);
+}
+
+.settings-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.settings-content h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(45, 45, 45, 0.2);
+}
+
+.setting-label {
+    font-size: 1.2rem;
+}
+
+.close-btn {
+    margin-top: auto;
+    padding: 15px;
+    background-color: var(--ink-black);
+    color: var(--paper-white);
+    border: none;
+    border-radius: 5px;
+    font-size: 1.2rem;
+    cursor: pointer;
+    min-height: var(--touch-min-size);
+}
+
+/* 涟漪效果 */
+.ripple {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(45, 45, 45, 0.3);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* 适配触控设备 */
+@media (max-width: 768px) {
+    header h1 {
+        font-size: 3rem;
+    }
+    
+    .name-display {
+        font-size: 3.5rem;
+    }
+    
+    .seal-btn {
+        width: 100px;
+        height: 100px;
+        font-size: 1.6rem;
+    }
+}
+
+/* 全屏模式样式 */
+.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1000;
+    background-color: var(--paper-white);
+}
+
+/* 字体渐入动画 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInQuick {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInAndScale {
+    from {
+        opacity: 0;
+        transform: scale(0.5) translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* 墨水绽放动画 */
+.splash-effect {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+@keyframes splashExpand {
+    0% {
+        box-shadow: 0 0 0 0 rgba(45, 45, 45, 0.3);
+        transform: scale(0.3);
+    }
+    70% {
+        box-shadow: 0 0 0 100px rgba(45, 45, 45, 0);
+        transform: scale(1);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(45, 45, 45, 0);
+        transform: scale(1.2);
+    }
+}
+
+/* 诗词彩蛋样式 */
+.poem-easter-egg {
+    background-color: rgba(245, 240, 230, 0.8);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.poem-title {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+}
+
+.poem-content {
+    line-height: 1.5;
+}

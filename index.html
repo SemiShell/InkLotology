@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>点</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- 引入Google字体，用于非毛笔字体部分 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- 水墨背景层 -->
+        <div class="ink-background">
+            <canvas id="inkCanvas"></canvas>
+        </div>
+        
+        <!-- 主界面内容 -->
+        <div class="content">
+            
+            <main>
+                <div class="result-container">
+                    <div id="nameDisplay" class="name-display brush-font"></div>
+                    <div id="inkSplash" class="ink-splash"></div>
+                </div>
+            </main>
+            
+            <footer>
+                <!-- 将点按钮移至左下角 -->
+                <div class="footer-content">
+                    <div class="left-controls">
+                        <button id="startBtn" class="seal-btn start-seal">點</button>
+                    </div>
+                    <div class="right-controls">
+                        <button id="settingsBtn" class="settings-btn">⚙</button>
+                    </div>
+                </div>
+            </footer>
+        </div>
+        
+        <!-- 设置面板 -->
+        <div id="settingsPanel" class="settings-panel hidden">
+            <div class="settings-content">
+                <h2 class="brush-font">设置</h2>
+                <div class="setting-item">
+                    <label class="setting-label">排除已抽中</label>
+                    <input type="checkbox" id="excludeSelected" checked>
+                </div>
+                <button id="closeSettings" class="close-btn brush-font">关闭</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 预加载音频资源 -->
+    <audio id="guqinAudio" preload="auto" style="display:none;">
+        <source src="assets/sounds/古琴音.mp3" type="audio/mpeg">
+        <source src="sounds/古琴音.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- 引入脚本 -->
+    <script src="js/preload.js"></script>
+    <script src="js/inkEffect.js"></script>
+    <script src="js/nameData.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
