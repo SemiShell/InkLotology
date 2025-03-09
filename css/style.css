@@ -559,6 +559,23 @@ footer {
     min-height: var(--touch-min-size);
 }
 
+.exit-btn {
+    padding: 8px 15px;
+    background-color: var(--seal-red);
+    color: var(--paper-white);
+    border: none;
+    border-radius: 5px;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-left: auto;
+}
+
+.exit-btn:hover {
+    background-color: rgba(176, 46, 37, 0.9);
+    transform: scale(1.05);
+}
+
 /* 涟漪效果 */
 .ripple {
     position: absolute;

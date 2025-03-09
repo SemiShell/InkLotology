@@ -14,6 +14,7 @@ class NameSelector {
         this.excludeSelectedCheck = document.getElementById('excludeSelected');
         this.skipPreloadCheck = document.getElementById('skipPreload');
         this.preloadedAudio = document.getElementById('guqinAudio');
+        this.exitAppBtn = document.getElementById('exitApp');
         
         // 确保按钮初始状态包含span标签
         if (this.startBtn && this.startBtn.innerHTML.trim() === '點') {
@@ -176,9 +177,16 @@ class NameSelector {
             window.nameData.setSkipPreload(e.target.checked);
         });
         
-        // 按钮涟漪效果
-        document.querySelectorAll('button').forEach(button => {
-            button.addEventListener('click', (e) => this.createRippleEffect(e, button));
+        // 按钮和链接添加涟漪效果
+        const buttons = [this.startBtn, this.settingsBtn, this.closeSettingsBtn, this.exitAppBtn];
+        buttons.forEach(button => {
+            if (button) {
+                button.addEventListener('click', (e) => this.createRippleEffect(e, button));
+            }
+        });
+        
+        this.exitAppBtn.addEventListener('click', () => {
+            this.exitApp();
         });
     }
     
@@ -538,6 +546,28 @@ class NameSelector {
         
         // 调用水墨效果的绽放方法
         window.inkEffect.createInkSplash(centerX, centerY, 1.5);
+    }
+    
+    // 退出应用程序
+    exitApp() {
+        // 创建自定义事件，用于 Pake 程序捕获
+        const exitEvent = new CustomEvent('app-exit', { 
+            detail: { 
+                action: 'exit',
+                message: '用户请求退出应用'
+            } 
+        });
+        window.dispatchEvent(exitEvent);
+        
+        // 备用方法，尝试通过window.close()关闭窗口
+        window.close();
+        
+        // 如果在Electron环境中，尝试使用Electron API
+        if (window.electronAPI) {
+            window.electronAPI.quit();
+        }
+        
+        console.log('尝试退出应用程序');
     }
 }
 
