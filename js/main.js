@@ -12,6 +12,7 @@ class NameSelector {
         this.closeSettingsBtn = document.getElementById('closeSettings');
         this.settingsPanel = document.getElementById('settingsPanel');
         this.excludeSelectedCheck = document.getElementById('excludeSelected');
+        this.skipPreloadCheck = document.getElementById('skipPreload');
         this.preloadedAudio = document.getElementById('guqinAudio');
         
         // 确保按钮初始状态包含span标签
@@ -30,10 +31,6 @@ class NameSelector {
         this.bindEvents();
         this.updateLayout();
         
-        // 记录音频加载状态
-        console.log('NameSelector 初始化完成');
-        console.log('预加载音频元素是否存在:', this.preloadedAudio ? '是' : '否');
-        
         // 在用户交互时尝试播放一个静音的音效，以解锁音频
         document.addEventListener('click', () => {
             this.unlockAudio();
@@ -42,20 +39,17 @@ class NameSelector {
     
     // 初始化所有音频相关功能
     initAudio() {
-        console.log('初始化音频...');
-        
         // 初始化备用音频
         this.initBackupAudio();
         
         // 预加载主音频元素事件监听
         if (this.preloadedAudio) {
             this.preloadedAudio.addEventListener('canplaythrough', () => {
-                console.log('预加载音频加载完成，可以播放');
                 this.audioLoaded = true;
             });
             
             this.preloadedAudio.addEventListener('error', (e) => {
-                console.warn('预加载音频加载失败，将使用备用方法');
+                // 静默失败，将使用备用方法
             });
             
             // 确保音频已加载
@@ -65,10 +59,8 @@ class NameSelector {
         }
     }
     
-    // 新增：解锁音频播放
+    // 解锁音频播放
     unlockAudio() {
-        console.log('尝试解锁音频...');
-        
         // 尝试使用预加载音频
         if (this.preloadedAudio) {
             const originalVolume = this.preloadedAudio.volume;
@@ -76,14 +68,13 @@ class NameSelector {
             
             this.preloadedAudio.play()
                 .then(() => {
-                    console.log('预加载音频解锁成功');
                     this.preloadedAudio.pause();
                     this.preloadedAudio.currentTime = 0;
                     this.preloadedAudio.volume = originalVolume;
                     this.audioLoaded = true;
                 })
                 .catch(error => {
-                    console.warn('预加载音频解锁失败，将使用备用方法');
+                    // 静默失败，将使用备用方法
                 });
         }
         
@@ -105,12 +96,10 @@ class NameSelector {
     // 使用预加载音频播放
     playPreloadedAudio() {
         if (!this.preloadedAudio) {
-            console.warn('预加载音频元素不存在');
             return false;
         }
         
         try {
-            console.log('尝试播放预加载音频...');
             // 重置音频
             this.preloadedAudio.currentTime = 0;
             // 设置音量
@@ -121,17 +110,14 @@ class NameSelector {
             
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    console.log('预加载音频播放成功');
                     return true;
                 }).catch(error => {
-                    console.warn('预加载音频播放失败，将使用备用方法');
                     // 尝试备用方法
                     this.playBackupAudio();
                     return false;
                 });
             }
         } catch (error) {
-            console.warn('播放预加载音频时出错，将使用备用方法');
             // 尝试备用方法
             this.playBackupAudio();
             return false;
@@ -142,18 +128,16 @@ class NameSelector {
     
     // 初始化备用音频
     initBackupAudio() {
-        console.log('初始化备用音频元素...');
         this.audioElement = new Audio();
         
         // 监听加载完成事件
         this.audioElement.addEventListener('canplaythrough', () => {
-            console.log('备用音频加载完成，可以播放');
             this.audioLoaded = true;
         });
         
         // 监听错误事件
         this.audioElement.addEventListener('error', (e) => {
-            console.warn('备用音频加载失败');
+            // 静默失败
         });
         
         // 尝试多个可能的路径
@@ -168,32 +152,6 @@ class NameSelector {
         
         // 预加载音频
         this.audioElement.load();
-    }
-    
-    // 隐藏主界面标题
-    hideMainTitle() {
-        // 查找并隐藏标题元素
-        // 尝试几种可能的标题选择器
-        const possibleTitleSelectors = [
-            '.title', 'h1', 'h2', '.app-header', '.header-title',
-            '.main-title', '#title', '[data-title]'
-        ];
-        
-        possibleTitleSelectors.forEach(selector => {
-            const titleElements = document.querySelectorAll(selector);
-            titleElements.forEach(el => {
-                // 排除开屏动画中的标题
-                if (!el.closest('.preload-mask')) {
-                    el.style.display = 'none';
-                }
-            });
-        });
-        
-        // 如果有特定的主标题ID
-        const appTitle = document.getElementById('appTitle');
-        if (appTitle) {
-            appTitle.style.display = 'none';
-        }
     }
     
     // 绑定事件
@@ -211,6 +169,11 @@ class NameSelector {
         
         this.excludeSelectedCheck.addEventListener('change', (e) => {
             window.nameData.setExcludeSelected(e.target.checked);
+        });
+        
+        // 添加跳过开屏动画设置的事件监听
+        this.skipPreloadCheck.addEventListener('change', (e) => {
+            window.nameData.setSkipPreload(e.target.checked);
         });
         
         // 按钮涟漪效果
@@ -243,6 +206,7 @@ class NameSelector {
         this.nameDisplay.classList.toggle('vertical', layout === 'vertical');
         this.nameDisplay.classList.toggle('horizontal', layout !== 'vertical');
         this.excludeSelectedCheck.checked = window.nameData.settings.excludeSelected;
+        this.skipPreloadCheck.checked = window.nameData.settings.skipPreload;
     }
     
     // 切换布局
@@ -369,15 +333,12 @@ class NameSelector {
                 const playPromise = this.preloadedAudio.play();
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
-                        console.log('预加载音频播放成功');
                         played = true;
                     }).catch(error => {
-                        console.warn('预加载音频播放失败，尝试备用方法');
                         if (!played) this.playBackupAudio(); 
                     });
                 }
             } catch (error) {
-                console.warn('预加载音频播放出错:', error);
                 if (!played) this.playBackupAudio();
             }
         } else {
@@ -388,8 +349,6 @@ class NameSelector {
     
     // 使用备用方式播放音频
     playBackupAudio() {
-        console.log('尝试使用备用方式播放音频...');
-        
         if (this.audioElement) {
             try {
                 // 重置音频
@@ -402,15 +361,12 @@ class NameSelector {
                 
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
-                        console.log('备用音频播放成功');
                     }).catch(error => {
-                        console.warn('备用音频播放失败:', error);
                         // 最后尝试创建新的Audio对象
                         this.playSimpleSound();
                     });
                 }
             } catch (error) {
-                console.warn('播放备用音频时出错:', error);
                 // 最后尝试创建新的Audio对象
                 this.playSimpleSound();
             }
@@ -423,7 +379,6 @@ class NameSelector {
     // 简单的播放方法 - 作为最后的备用
     playSimpleSound() {
         try {
-            console.log('尝试使用简单方式播放音频...');
             const audio = new Audio();
             
             // 尝试几个可能的路径
@@ -442,12 +397,9 @@ class NameSelector {
             
             audio.volume = 1.0;
             audio.play().then(() => {
-                console.log('简单音频播放成功');
             }).catch(error => {
-                console.warn('简单音频播放也失败了，已尝试所有方法');
             });
         } catch (error) {
-            console.warn('创建简单音频对象失败');
         }
     }
     
@@ -586,27 +538,6 @@ class NameSelector {
         
         // 调用水墨效果的绽放方法
         window.inkEffect.createInkSplash(centerX, centerY, 1.5);
-        
-        // 添加DOM动画效果
-        const splashDom = document.createElement('div');
-        splashDom.className = 'ink-splash-effect';
-        splashDom.style.position = 'absolute';
-        splashDom.style.left = `${centerX}px`;
-        splashDom.style.top = `${centerY}px`;
-        splashDom.style.transform = 'translate(-50%, -50%)';
-        splashDom.style.width = '10px';
-        splashDom.style.height = '10px';
-        splashDom.style.borderRadius = '50%';
-        splashDom.style.background = 'rgba(0,0,0,0.8)';
-        splashDom.style.zIndex = '5';
-        splashDom.style.animation = 'splashExpand 0.6s forwards';
-        
-        document.body.appendChild(splashDom);
-        
-        // 动画结束后移除
-        setTimeout(() => {
-            splashDom.remove();
-        }, 600);
     }
 }
 

@@ -32,13 +32,13 @@ class PreloadAnimation {
         this.poemContainer = document.createElement('div');
         this.poemContainer.className = 'poem-container';
         
-        // 创建诗句元素
+        // 创建诗句元素 - 使用衡山毛笔草书字体
         this.poemLine1 = document.createElement('div');
-        this.poemLine1.className = 'poem-line brush-font line1';
+        this.poemLine1.className = 'poem-line hengshan-font line1';
         this.poemLine1.textContent = '人生无根蒂';
         
         this.poemLine2 = document.createElement('div');
-        this.poemLine2.className = 'poem-line brush-font line2';
+        this.poemLine2.className = 'poem-line hengshan-font line2';
         this.poemLine2.textContent = '飘如陌上尘';
         
         // 添加到DOM
@@ -50,8 +50,6 @@ class PreloadAnimation {
         
         document.body.appendChild(this.preloadMask);
     }
-    
-    // 移除飘尘粒子创建方法，简化动画效果
     
     preloadAudio() {
         // 尝试预加载开场音效
@@ -90,10 +88,9 @@ class PreloadAnimation {
     }
     
     playAudio() {
-        // 尝试播放音频
         if (this.audio) {
             this.audio.play().catch(err => {
-                console.warn('无法播放开场音效:', err);
+                // 静默失败
             });
         }
     }
@@ -129,7 +126,15 @@ const preloadAnimation = new PreloadAnimation();
 window.addEventListener('load', () => {
     // 延迟一小段时间启动，确保页面已完全渲染
     setTimeout(() => {
-        preloadAnimation.start();
+        // 检查是否应该跳过开屏动画
+        if (window.nameData && window.nameData.settings && window.nameData.settings.skipPreload) {
+            // 如果设置了跳过，直接完成动画
+            preloadAnimation.start();  // 仍然需要调用start来创建元素
+            preloadAnimation.complete(); // 但立即完成
+        } else {
+            // 否则正常启动动画
+            preloadAnimation.start();
+        }
     }, 100);
 });
 

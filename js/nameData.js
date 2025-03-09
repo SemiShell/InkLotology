@@ -11,7 +11,8 @@ class NameData {
         this.selectedNames = [];
         this.settings = {
             excludeSelected: true,
-            layout: 'vertical'
+            layout: 'vertical',
+            skipPreload: false
         };
         
         this.loadSettings();
@@ -29,7 +30,7 @@ class NameData {
                 this.selectedNames = JSON.parse(savedSelected);
             }
         } catch (e) {
-            console.error('设置加载失败', e);
+            // 设置加载失败时重置
             this.selectedNames = [];
         }
     }
@@ -80,6 +81,11 @@ class NameData {
     
     setExcludeSelected(value) {
         this.settings.excludeSelected = value;
+        this.saveSettings();
+    }
+    
+    setSkipPreload(value) {
+        this.settings.skipPreload = value;
         this.saveSettings();
     }
     
